@@ -19,6 +19,7 @@
 			border:1px grey solid;
             width:20px;
             height:20px;			
+            cursor:pointer;
         }
 		.row{
 			
@@ -35,23 +36,41 @@
 			})
 				.done(function (result){
 					console.log(result);
+                    window.location.reload();
 				});
 		}
+        function restart(){
+            $.ajax({
+                method:"POST",
+                url:"reset.php"
+            })
+                .done(function (result){
+                    console.log(result);
+                    window.location.reload();
+                });
+        }
 	</script>
 </head>
 <body>
-
+<input type='button' onclick="restart();" value="New Game" />
 
 
 <?php
 require_once("Board.php");
 define("BOARD_SIZE", 29);
-define("BOMB_PERCENT", 10);
-$board = new Board(BOARD_SIZE);
-
+define("BOMB_PERCENT", 100);
+session_start();
+if (!isset($_SESSION['board'])){
+    $board = new Board(BOARD_SIZE);
+    $_SESSION['board']=serialize($board);
+} else if (isset($_SESSION['board'])){ 
+    $board = unserialize($_SESSION['board']);
+}
+var_dump($board->bombs);
 for ($y = 0; $y<BOARD_SIZE; $y++){
 	echo "<div class='row'>";
     for ($x=0; $x<BOARD_SIZE; $x++){
+    var_dump(isset($board->bombs[$x][$y]));
 		echo "<div class='cell";
         if (!$board->visible[$x][$y]){
             echo " hidden";
