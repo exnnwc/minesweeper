@@ -1,47 +1,74 @@
-<?php
-require_once("Board.php");
-define("BOARD_SIZE", 25);
-define("BOMB_PERCENT", 10);
-
-?>
 <html>
 <head>
     <style>
+		body{
+			margin:0px;
+		}
         table, tr, td{
             border:1px black solid;
             text-align:center;
         }
-        td{
-            width:25px;
-            height:25px;
+		.hidden{
+			background-color:black;
+		}
+		.bomb{
+			background-color:red;
+		}
+        .cell{
+			float:left;
+			border:1px grey solid;
+            width:20px;
+            height:20px;			
         }
+		.row{
+			
+			clear:both;
+		}
     </style>
+	<script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
+	<script>
+		function moveTo(x, y){
+			$.ajax({
+				method:"POST",
+				url:"move.php",
+				data:{x:x, y:y}				
+			})
+				.done(function (result){
+					console.log(result);
+				});
+		}
+	</script>
 </head>
 <body>
 
-<table>
+
 
 <?php
+require_once("Board.php");
+define("BOARD_SIZE", 29);
+define("BOMB_PERCENT", 10);
 $board = new Board(BOARD_SIZE);
 
-
 for ($y = 0; $y<BOARD_SIZE; $y++){
-    echo "<tr>";
+	echo "<div class='row'>";
     for ($x=0; $x<BOARD_SIZE; $x++){
-        echo "<td";
-        if (!$board->visible){
-            echo " style='background-color:black'>";
-        } else if (isset($board->bombs[$x][$y])){
-            echo ">x"; 
-        }
-        echo "</td>";
+		echo "<div class='cell";
+        if (!$board->visible[$x][$y]){
+            echo " hidden";
+        } else if (!$board->visible[$x][$y]){
+			if (isset($board->bombs[$x][$y])){
+				echo " bomb"; 
+			} else {
+				echo " ";
+			}
+		}
+		echo "' onclick=\" moveTo($x,$y);\">&nbsp;</div>";
     }
-    echo "</tr>";
+	echo "<div>";
 }
 
 ?>
-</table>
+
 </body>
 </html>
 
-<?php
