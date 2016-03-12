@@ -36,7 +36,7 @@
 			})
 				.done(function (result){
 					console.log(result);
-                    window.location.reload();
+                    //window.location.reload();
 				});
 		}
         function restart(){
@@ -60,32 +60,48 @@ require_once("Board.php");
 define("BOARD_SIZE", 29);
 define("BOMB_PERCENT", 100);
 session_start();
+
 if (!isset($_SESSION['board'])){
     $board = new Board(BOARD_SIZE);
     $_SESSION['board']=serialize($board);
 } else if (isset($_SESSION['board'])){ 
     $board = unserialize($_SESSION['board']);
 }
-var_dump($board->bombs);
+?>
+<PRE>
+<?php
+?>
+</PRE>
+<?php
 for ($y = 0; $y<BOARD_SIZE; $y++){
 	echo "<div class='row'>";
     for ($x=0; $x<BOARD_SIZE; $x++){
-    var_dump(isset($board->bombs[$x][$y]));
-		echo "<div class='cell";
+		//var_dump($board->bombs[$x][$y]);
+		echo "<div title='($x, $y)' class='cell";
         if (!$board->visible[$x][$y]){
             echo " hidden";
-        } else if (!$board->visible[$x][$y]){
-			if (isset($board->bombs[$x][$y])){
+        } else if ($board->visible[$x][$y]){
+		
+			if ($board->bombs[$x][$y]==true){
 				echo " bomb"; 
 			} else {
 				echo " ";
 			}
 		}
-		echo "' onclick=\" moveTo($x,$y);\">&nbsp;</div>";
+		echo "' onclick=\" moveTo($x,$y);\">";
+		$num_of_bombs = $board->num_of_bombs_adjacent($x, $y);
+		echo ($num_of_bombs>0 && !$board->bombs[$x][$y])
+			? $num_of_bombs
+			: "&nbsp;";
+		
+		echo "</div>";
     }
 	echo "<div>";
 }
-
+if (isset($_SESSION['GAME_OVER'])){
+	echo "Game over.";
+	return;
+}
 ?>
 
 </body>
