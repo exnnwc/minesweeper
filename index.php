@@ -36,7 +36,7 @@
 			})
 				.done(function (result){
 					console.log(result);
-                    //window.location.reload();
+                    window.location.reload();
 				});
 		}
         function restart(){

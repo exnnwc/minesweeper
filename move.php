@@ -1,5 +1,6 @@
 <?php
 require_once("Board.php");
+define("MAX_LEVEL", 8);
 session_start();
 var_dump($_POST["x"], $_POST["y"]);
 $x= $_POST['x'];
@@ -8,49 +9,61 @@ $board=unserialize($_SESSION['board']);
 
 $board->visible[$x][$y]=true;
 
-
-if ($board->num_of_bombs_adjacent($x, $y)==0){
-	search_and_unveil($x, $y, []);	
-} else if ($board->bombs[$x][$y]){
+if ($board->bombs[$x][$y]){
 	//$_SESSION['GAME_OVER']=true;	
 	
-} 
+} else if ($board->num_of_bombs_adjacent($x, $y)==0){
+	search_diagnolly_and_unveil($x, $y, 0);
+}  
 $_SESSION['board']=serialize($board);
 
-function search_and_unveil($x, $y, $history){
+
+
+function search_diagnolly_and_unveil($x, $y, $level){
 	global $board;
-	$history[] = ["x"=>$x, "y"=>$y];
-	var_dump($history);
-	$neighbors = $board->neighbors($x, $y);
-	foreach ($neighbors as $neighbor){
-		
-		if ($board->num_of_bombs_adjacent($neighbor["x"], $neighbor["y"])==0 && !has_this_been_searched($neighbor["x"], $neighbor["y"], $history)){
-			$board->visible[$neighbor["x"]][$neighbor["y"]]=true;
-			search_and_unveil($neighbor["x"], $neighbor["y"], $history);
+	$level++;
+	$left=$x;
+	if ($level<MAX_LEVEL){
+		search_vertically_and_unveil($x, $y, $level);
+	}
+	
+	while ($left>-1 && $board->num_of_bombs_adjacent($left, $y)==0){
+		$left--;
+		$board->visible[$left][$y]=true;
+		if ($level<MAX_LEVEL){
+			search_vertically_and_unveil($left, $y, $level);
+		}
+	}
+	$right=$x;
+	while ($board->num_of_bombs_adjacent($right, $y)==0 && $right<30){
+		$right++;
+		$board->visible[$right][$y]=true;
+		if ($level<MAX_LEVEL){
+			search_vertically_and_unveil ($right, $y, $level);
 		}
 	}
 }
 
-function has_this_been_searched($x, $y, $history){
-	foreach ($history as $past){
-		if ($past["x"]==$x && $past["y"]==$y){
-			return true;
-		}
-	}
-	return false;
-}
-/*
-function search_and_unveil($home_x, $home_y, $range){
+function search_vertically_and_unveil($x, $y, $level){
 	global $board;
-	$range++;
-	for ($x=($home_x-$range);$x<=($home_x+$range);$x++){
-		for ($y=($home_y-$range);$y<=($home_y+$range);$y++){				
-			if (!($x==$home_x && $y==$home_y) && $x>=0 && $y>=0 && $x<=29 && $y<=29){
-				$board->visible[$x][$y]=true;
-			}		
+	$level++;
+	$up=$y;
+	if ($level<MAX_LEVEL){
+		search_diagnolly_and_unveil($x, $y, $level);
+	}
+	while ($up>-1 && $board->num_of_bombs_adjacent($x, $up)==0){
+		$up--;
+		$board->visible[$x][$up]=true;
+		if ($level<MAX_LEVEL){
+			search_diagnolly_and_unveil($x, $up, $level);
 		}
 	}
+	$down=$y;
+	while ($board->num_of_bombs_adjacent($x, $down)==0 && $down<30){
+		$down++;
+		$board->visible[$x][$down]=true;
+		if ($level<MAX_LEVEL){
+			search_diagnolly_and_unveil($x, $down, $level);
+		}
+	}	
 }
-
-
-*/

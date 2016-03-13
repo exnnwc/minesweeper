@@ -1,6 +1,7 @@
 <?php
 
 class Board{
+	const SIZE=28;
     public $visible=[];
     public $bombs=[];
     function __construct($size){
@@ -11,7 +12,7 @@ class Board{
             }   
         }
 		$this->visible = $visible;
-        $this->bombs=$this->populate_with_bombs($bombs, $size, 5);
+        $this->bombs=$this->populate_with_bombs($bombs, $size, 15);
     }
     private function populate_with_bombs($bombs, $size, $percent){        		
         $num_of_bombs=0;
