@@ -32,7 +32,7 @@ class Board{
 		
 		for ($x=($home_x-1);$x<($home_x+2);$x++){
 			for ($y=($home_y-1);$y<($home_y+2);$y++){				
-				if (!($x==$home_x && $y==$home_y) && $x>=0 && $y>=0 && $x<=29 && $y<=29){
+				if (!($x==$home_x && $y==$home_y) && $x>=0 && $y>=0 && $x<self::SIZE && $y<self::SIZE){
 					$neighbors[]=["x"=>$x, "y"=>$y];	
 				}
 				
