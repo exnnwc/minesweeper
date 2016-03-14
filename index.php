@@ -19,11 +19,14 @@
 			border:1px grey solid;
             width:20px;
             height:20px;			
-            cursor:pointer;
+            
         }
 		.row{
 			
 			clear:both;
+		}
+		.hand {
+			cursor:pointer;
 		}
     </style>
 	<script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
@@ -57,51 +60,69 @@
 
 <?php
 require_once("Board.php");
-define("BOARD_SIZE", 29);
 define("BOMB_PERCENT", 100);
 session_start();
 
 if (!isset($_SESSION['board'])){
-    $board = new Board(BOARD_SIZE);
+    $board = new Board();
     $_SESSION['board']=serialize($board);
 } else if (isset($_SESSION['board'])){ 
     $board = unserialize($_SESSION['board']);
 }
+
+$stop = (isset($_SESSION["GAME_OVER"]) || $board->only_bombs_left());
 ?>
+<h1>
+<?php
+if (isset($_SESSION["GAME_OVER"])){
+	echo "You lost. Game over.";
+} else if ($board->only_bombs_left()){
+	echo "You won. Congrats!";
+}
+?>
+</h1>
 <PRE>
 <?php
+
 ?>
 </PRE>
 <?php
-for ($y = 0; $y<BOARD_SIZE; $y++){
+for ($y = 0; $y<$board::SIZE; $y++){
 	echo "<div class='row'>";
-    for ($x=0; $x<BOARD_SIZE; $x++){
+    for ($x=0; $x<$board::SIZE; $x++){
 		//var_dump($board->bombs[$x][$y]);
 		echo "<div title='($x, $y)' class='cell";
+		
         if (!$board->visible[$x][$y]){
             echo " hidden";
+		if (!$stop){
+				echo " hand";
+		}
         } else if ($board->visible[$x][$y]){
-		
+			
 			if ($board->bombs[$x][$y]==true){
 				echo " bomb"; 
 			} else {
 				echo " ";
 			}
 		}
-		echo "' onclick=\" moveTo($x,$y);\">";
+		echo "'";
+		if (!$stop && !$board->visible[$x][$y]){
+			echo " onclick=\" moveTo($x,$y);\"";
+		}
+		echo ">";
 		$num_of_bombs = $board->num_of_bombs_adjacent($x, $y);
 		echo ($num_of_bombs>0 && !$board->bombs[$x][$y])
 			? $num_of_bombs
 			: "&nbsp;";
-		
+		echo $board->bombs[$x][$y]
+			? "X"
+			: "";
 		echo "</div>";
     }
 	echo "<div>";
 }
-if (isset($_SESSION['GAME_OVER'])){
-	echo "Game over.";
-	return;
-}
+
 ?>
 
 </body>

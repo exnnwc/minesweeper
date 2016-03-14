@@ -8,13 +8,14 @@ $y = $_POST['y'];
 $board=unserialize($_SESSION['board']);
 
 $board->visible[$x][$y]=true;
-
 if ($board->bombs[$x][$y]){
-	//$_SESSION['GAME_OVER']=true;	
-	
+	$_SESSION['GAME_OVER']=true;		
 } else if ($board->num_of_bombs_adjacent($x, $y)==0){
+	unveil_neighbors($x, $y);
 	search_diagnolly_and_unveil($x, $y, 0);
-}  
+} 
+
+
 $_SESSION['board']=serialize($board);
 
 
@@ -27,7 +28,7 @@ function search_diagnolly_and_unveil($x, $y, $level){
 		search_vertically_and_unveil($x, $y, $level);
 	}
 	
-	while ($left>-1 && $board->num_of_bombs_adjacent($left, $y)==0){
+	while ($left>=0 && $board->num_of_bombs_adjacent($left, $y)==0){
 		$left--;
 		if ($board->num_of_bombs_adjacent($left, $y)==0){
 			unveil_neighbors($left, $y);
@@ -37,7 +38,7 @@ function search_diagnolly_and_unveil($x, $y, $level){
 		}
 	}
 	$right=$x;
-	while ($board->num_of_bombs_adjacent($right, $y)==0 && $right<Board::SIZE){
+	while ($board->num_of_bombs_adjacent($right, $y)==0 && $right<$board::SIZE){
 		$right++;
 		if ($board->num_of_bombs_adjacent($right, $y)==0){
 			unveil_neighbors($right, $y);
@@ -65,7 +66,7 @@ function search_vertically_and_unveil($x, $y, $level){
 		}
 	}
 	$down=$y;
-	while ($board->num_of_bombs_adjacent($x, $down)==0 && $down<Board::SIZE){
+	while ($board->num_of_bombs_adjacent($x, $down)==0 && $down<$board::SIZE){
 		$down++;
 		if ($board->num_of_bombs_adjacent($x, $down)==0){
 			unveil_neighbors($x, $down);
@@ -81,6 +82,7 @@ function unveil_neighbors($x, $y){
 	$board->visible[$x][$y]=true;
 	$neighbors = $board->neighbors($x, $y);
 	foreach ($neighbors as $neighbor){
+		var_dump($neighbor);
 		if (!$board->visible[$neighbor["x"]][$neighbor["y"]] && $board->num_of_bombs_adjacent($neighbor["x"], $neighbor["y"])>0){
 			$board->visible[$neighbor["x"]][$neighbor["y"]]=true;
 		}

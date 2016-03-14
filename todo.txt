@@ -1,6 +1,0 @@
-
-Stop play.
-
-WIN when all areas outside of bombs have been revealed.
-LOSE when bombs revealed.
-
